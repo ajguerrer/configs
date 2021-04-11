@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cp ~/.tmux.conf .
+cp ~/.config/alacritty/alacritty.yml .
+cp ~/.config/starship.toml .
+cp ~/.config/nvim/init.vim .
+cp ~/.config/nvim/coc-settings.json .
+cp ~/.bashrc .
+cp ~/.profile .
+cp ~/.bash_profile .

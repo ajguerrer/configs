@@ -1,0 +1,22 @@
+{
+	"rust-analyzer.checkOnSave.command": "clippy",
+	"rust-analyzer.cargo.loadOutDirsFromCheck": true,
+  "rust-analyzer.procMacro.enable": true,
+  "cSpell.userWords": [
+    "Hasher",
+    "Paren",
+    "Peekable",
+    "clippy",
+    "eldiro",
+    "impls",
+    "newtype",
+    "oneof",
+    "proto",
+    "protobuf",
+    "repr",
+    "struct",
+    "thiserror",
+    "tobu",
+    "varint"
+  ]
+}
