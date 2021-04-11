@@ -10,4 +10,4 @@ cp ~/.config/nvim/init.vim .
 cp ~/.config/nvim/coc-settings.json .
 echo '# AJG' > .profile      && sed '0,/# AJG/d' ~/.profile >> .profile
 echo '# AJG' > .bashrc       && sed '0,/# AJG/d' ~/.bashrc >> .bashrc
-echo '# AJG' > .bash_profile && sed '0,/# AJG/d' ~/.bash_profile >> .bash_profile
+

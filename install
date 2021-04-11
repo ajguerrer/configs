@@ -7,6 +7,7 @@ yay -Rsn firefox || true
 sudo usermod -aG docker $(whoami)
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
 cargo install alacritty starship bottom proximity-sort gitui
 
 git clone https://github.com/alacritty/alacritty.git && cd alacritty && \
@@ -16,6 +17,7 @@ sudo update-desktop-database && \
 cd .. && rm -rf alacritty 
 
 cp .tmux.conf ~
+mkdir -p ~/go
 cp env ~/go
 mkdir -p ~/.config/alacritty
 cp alacritty.yml ~/.config/alacritty
@@ -25,7 +27,6 @@ cp init.vim ~/.config/nvim
 cp coc-settings.json ~/.config/nvim
 cat .bashrc  >> ~/.bashrc
 cat .profile >> ~/.profile
-cat .bash_profile >> ~/.bash_profile
 
 git config --global init.defaultBranch main
 git config --global user.email ajguerrer@gmail.com
