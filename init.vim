@@ -1,46 +1,38 @@
 let mapleader = "\<Space>"
+" must be first because it changes a lot of options
 set nocompatible
 filetype off
 
 
 call plug#begin()
 
-" VIM enhancements
-Plug 'ciaranm/securemodelines'
-Plug 'editorconfig/editorconfig-vim'
-Plug 'justinmk/vim-sneak'
-
 " GUI enhancements
 Plug 'chriskempson/base16-vim'
 Plug 'itchyny/lightline.vim'
 Plug 'machakann/vim-highlightedyank'
-Plug 'andymass/vim-matchup'
+
+" VIM enhancements
+Plug 'ciaranm/securemodelines'
+Plug 'justinmk/vim-sneak'
 
 " Fuzzy finder
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
-" Semantic language support
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Syntactic language support
-Plug 'cespare/vim-toml'
-Plug 'stephpy/vim-yaml'
-Plug 'rust-lang/rust.vim'
-Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
+" Language support
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-go coc-rust-analyzer coc-pairs coc-spell-checker' }
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 call plug#end()
 
+" =============================================================================
+" # Visual settings
+" =============================================================================
+
 " cursor look
 set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
-
 " live substitution
 set inccommand=nosplit
-
-" close vim, prompt if buffers changed
-noremap <C-q> :confirm qall<CR>
-
 " terminal colors
 if !has('gui_running')
   set t_Co=256
@@ -49,94 +41,65 @@ if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
   " screen does not (yet) support truecolor
   set termguicolors
 endif
-set background=dark
 let base16colorspace=256
-colorscheme base16-gruvbox-dark-hard
-syntax on
+syntax enable
 hi Normal ctermbg=NONE
-" Brighter comments
-call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
 
-" Secure modelines
-let g:secure_modelines_allowed_items = [
-                \ "textwidth",   "tw",
-                \ "softtabstop", "sts",
-                \ "tabstop",     "ts",
-                \ "shiftwidth",  "sw",
-                \ "expandtab",   "et",   "noexpandtab", "noet",
-                \ "filetype",    "ft",
-                \ "foldmethod",  "fdm",
-                \ "readonly",    "ro",   "noreadonly", "noro",
-                \ "rightleft",   "rl",   "norightleft", "norl",
-                \ "colorcolumn"
-                \ ]
+" Dont highlight long columns
+set synmaxcol=500
 
-" Lightline
-let g:lightline = {
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename',
-      \   'cocstatus': 'coc#status'
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:t') !=# '' ? @% : '[No Name]'
-endfunction
+" Relative with absolute current line
+set relativenumber
+set number
 
-" Use auocmd to force lightline update.
-autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+" Visual indicator at column
+set colorcolumn=100
 
-" :grep with rg
-if executable('rg')
-	set grepprg=rg\ --no-heading\ --vimgrep
-	set grepformat=%f:%l:%c:%m
-endif
-
-" Open hotkeys
-map <leader>f :Files<CR>
-nmap <leader>; :Buffers<CR>
-
-" Quick qwx
-nmap <leader>w :w<CR>
-nmap <leader>q :q<CR>
-nmap <leader>x :x<CR>
-
-" rust
-let g:rustfmt_autosave = 1
-let g:rustfmt_emit_files = 1
-let g:rustfmt_fail_silently = 0
-
-" =============================================================================
-" # Editor settings
-" =============================================================================
-set updatetime=300
-set timeoutlen=300
-set ttimeoutlen=5
-set encoding=utf-8
-set scrolloff=2
-set noshowmode
-set hidden
-set nobackup
-set nowritebackup
-set nowrap
-set nojoinspaces
-let g:sneak#s_next = 1
-let g:vim_markdown_new_list_item_indent = 0
-let g:vim_markdown_auto_insert_bullets = 0
-let g:vim_markdown_frontmatter = 1
+" Give more space for displaying messages
+set cmdheight=2
 
 " Always display sign column. Prevent buffer moving when adding/deleting sign.
 set signcolumn=yes
 
-" Settings needed for .lvimrc
-set exrc
-set secure
+" Show (partial) command in status line.
+set showcmd 
 
-" Give more space for displaying messages
-set cmdheight=2
+" Show those damn hidden characters
+set listchars=nbsp:¬,extends:»,precedes:«,trail:•
+
+" =============================================================================
+" # Editor settings
+" =============================================================================
+
+" Write swap after ms
+set updatetime=500
+
+" Key seqence delay
+set timeoutlen=300
+
+" Key code delay
+set ttimeoutlen=5
+
+set encoding=utf-8
+
+" lines of context around cursor when scrolling
+set scrolloff=3
+
+" hide, dont close, buffers with changes
+set hidden
+
+" no backups
+set nobackup
+set nowritebackup
+
+" dont wrap lines
+set nowrap
+
+" disable extra spaces after sentence
+set nojoinspaces
+
+" disable folding
+set nofoldenable
 
 " Sane splits
 set splitright
@@ -149,7 +112,7 @@ set undofile
 " Decent wildmenu
 set wildmenu
 set wildmode=list:longest
-set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
+set wildignore=
 
 " Indent
 filetype plugin indent on
@@ -184,53 +147,67 @@ nnoremap ? ?\v
 nnoremap / /\v
 cnoremap %s/ %sm/
 
-" =============================================================================
-" # GUI settings
-" =============================================================================
-set guioptions-=T " Remove toolbar
-set vb t_vb= " No beeps
-set backspace=2 " Backspace over newlines
-set nofoldenable
-set ttyfast
-set lazyredraw
-set synmaxcol=500
-set laststatus=2
-set relativenumber " Relative line numbers
-set number " Also show current absolute line
-set diffopt+=iwhite " No whitespace in vimdiff
-" Make diffing better: https://vimways.org/2018/the-power-of-diff/
-set diffopt+=algorithm:patience
-set diffopt+=indent-heuristic
-set colorcolumn=100 " and give me a colored column
-set showcmd " Show (partial) command in status line.
-set mouse=a " Enable mouse usage (all modes) in terminals
-set shortmess+=c " don't give |ins-completion-menu| messages.
+" Enable mouse usage (all modes) in terminals
+set mouse=a 
 
-" Show those damn hidden characters
-" Verbose: set listchars=nbsp:¬,eol:¶,extends:»,precedes:«,trail:•
-set listchars=nbsp:¬,extends:»,precedes:«,trail:•
+" don't give ins-completion-menu messages.
+set shortmess+=c 
+
+" completion handling
+set completeopt=menuone,noinsert,noselect
 
 " =============================================================================
-" # Keyboard shortcuts
+" # Plugin settings
 " =============================================================================
-" ; as :
-nnoremap ; :
+" s for next match
+let g:sneak#s_next = 1
 
-" Ctrl+h to stop searching
-vnoremap <C-h> :nohlsearch<cr>
-nnoremap <C-h> :nohlsearch<cr>
+" Color scheme
+colorscheme base16-gruvbox-dark-hard
+set background=dark
+" Brighter comments
+call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
 
-" Suspend with Ctrl+f
-inoremap <C-f> :sus<cr>
-vnoremap <C-f> :sus<cr>
-nnoremap <C-f> :sus<cr>
+" Lightline
+let g:lightline = {
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'filename': 'LightlineFilename',
+      \   'cocstatus': 'coc#status'
+      \ },
+      \ }
+function! LightlineFilename()
+  return expand('%:t') !=# '' ? @% : '[No Name]'
+endfunction
 
-" Jump to start and end of line using the home row keys
-map H ^
-map L $
+" FZF
+if executable('rg')
+	set grepprg=rg\ --no-heading\ --vimgrep
+	set grepformat=%f:%l:%c:%m
+endif
 
-" <leader>s for Rg search
-noremap <leader>s :Rg<CR>
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'source': s:list_cmd(), 
+  \                                                    'options': ['--tiebreak=index', '--layout=reverse', '--info=inline']}), <bang>0)
+
+function! s:list_cmd()
+  let base = fnamemodify(expand('%'), ':h:.:S')
+  return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
+endfunction
+
+function! RipgrepFzf(query, fullscreen)
+  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
+  let initial_command = printf(command_fmt, shellescape(a:query))
+  let reload_command = printf(command_fmt, '{q}')
+  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+endfunction
+
+command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
+
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
@@ -238,59 +215,33 @@ command! -bang -nargs=* Rg
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
 
-command! -bang -nargs=? -complete=dir Files
-  \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
-  \                               'options': '--tiebreak=index'}, <bang>0)
+" Treesitter config
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true
+  },
+}
+EOF
 
-function! s:list_cmd()
-  let base = fnamemodify(expand('%'), ':h:.:S')
-  return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
-endfunction
+" =============================================================================
+" # Keyboard shortcuts
+" =============================================================================
 
-" Open new file adjacent to current file
-nnoremap <leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
+" FZF
+" Open hotkeys
+map <leader>f :Files<CR>
+nmap <leader>; :Buffers<CR>
+noremap <leader>s :RG 
 
-" No arrow keys --- force yourself to use the home row
-nnoremap <up> <nop>
-nnoremap <down> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
-
-" Left and right can switch buffers
-nnoremap <left> :bp<CR>
-nnoremap <right> :bn<CR>
-
-" Move by line
-nnoremap j gj
-nnoremap k gk
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" 'Smart' navigation
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <c-.> to trigger completion.
-inoremap <silent><expr> <c-.> coc#refresh()
-
+" LSP configuration
 " Make <CR> auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
@@ -321,54 +272,25 @@ nmap <leader>rn <Plug>(coc-rename)
 
 " Applying codeAction to the selected region.
 " Example: `<leader>aap` for current paragraph
-nmap <leader>a v<Plug>(coc-codeaction-selected)<C-C>
-xmap <leader>a v<Plug>(coc-codeaction-selected)<C-C>
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
 
 " Remap keys for applying codeAction to the current buffer.
-" nmap <leader>ac  <Plug>(coc-codeaction)
+nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
-" nmap <leader>qf  <Plug>(coc-fix-current)
-
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
+nmap <leader>qf  <Plug>(coc-fix-current)
 
 " Remap <C-f> and <C-b> for scroll float windows/popups.
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-
-" Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
-
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
-
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 
 " Mappings for CoCList
 " Show all diagnostics.
 nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-" nnoremap <silent><nowait> <leader>e  :<C-u>CocList extensions<cr>
 " Show commands.
 nnoremap <silent><nowait> <leader>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
@@ -380,32 +302,64 @@ nnoremap <silent><nowait> <leader>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
 nnoremap <silent><nowait> <leader>k  :<C-u>CocPrev<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Quick qwx
+nmap <leader>w :w<CR>
+nmap <leader>q :q<CR>
+nmap <leader>x :x<CR>
+
+" close vim, prompt if buffers changed
+noremap <C-q> :confirm qall<CR>
+" ; as :
+nnoremap ; :
+
+" Open new file adjacent to current file
+nnoremap <leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
 
 " <leader><leader> toggles between buffers
 nnoremap <leader><leader> <c-^>
 
-" <leader>, shows/hides hidden characters
-nnoremap <leader>, :set invlist<cr>
-
-" <leader>q shows stats
-" nnoremap <leader>q g<c-g>
-
 " Keymap for replacing up to next _ or -
 noremap <leader>m ct_
 
-" I can type :help on my own, thanks.
+" Ctrl+h to stop searching
+vnoremap <C-h> :nohlsearch<cr>
+nnoremap <C-h> :nohlsearch<cr>
+
+" Suspend with Ctrl+f
+inoremap <C-f> :sus<cr>
+vnoremap <C-f> :sus<cr>
+nnoremap <C-f> :sus<cr>
+
+" Jump to start and end of line using the home row keys
+map H ^
+map L $
+
+" No arrow keys --- force yourself to use the home row
+nnoremap <up> <nop>
+nnoremap <down> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
+
+" C-arrow to navigate splits
+nnoremap <C-down> <C-W><C-J>
+nnoremap <C-up> <C-W><C-K>
+nnoremap <C-right> <C-W><C-L>
+nnoremap <C-left> <C-W><C-H>
+
+" Left and right can switch buffers
+nnoremap <left> :bp<CR>
+nnoremap <right> :bn<CR>
+
+" Move by line
+nnoremap j gj
+nnoremap k gk
+
+" <leader>, shows/hides hidden characters
+nnoremap <leader>, :set invlist<cr>
+
+" Disable F1 help
 map <F1> <Esc>
 imap <F1> <Esc>
-
-
-" =============================================================================
-" # Autocommands
-" =============================================================================
-
-" Jump to last edit position on opening file
-if has("autocmd")
-  " https://stackoverflow.com/questions/31449496/vim-ignore-specifc-file-in-autocommand
-  au BufReadPost * if expand('%:p') !~# '\m/\.git/' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
 
