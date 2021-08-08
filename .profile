@@ -1,2 +1,2 @@
 # AJG
-source "$HOME/go/env"
+. "$HOME/go/env"

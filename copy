@@ -2,12 +2,9 @@
 
 set -ex
 
-cp ~/go/env .
-cp ~/.tmux.conf .
-cp ~/.config/alacritty/alacritty.yml .
-cp ~/.config/starship.toml .
-cp ~/.config/nvim/init.vim .
-cp ~/.config/nvim/coc-settings.json .
+cp ~/go/env . || true
+cp ~/.config/starship.toml . || true
+cp ~/.config/nvim/init.vim . || true
 echo '# AJG' > .profile      && sed '0,/# AJG/d' ~/.profile >> .profile
 echo '# AJG' > .bashrc       && sed '0,/# AJG/d' ~/.bashrc >> .bashrc
 
