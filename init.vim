@@ -19,9 +19,17 @@ Plug 'justinmk/vim-sneak'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
+" Code spell check
+Plug 'kamykn/spelunker.vim'
+Plug 'kamykn/popup-menu.nvim'
+
 " Language support
-Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-go coc-rust-analyzer coc-pairs coc-spell-checker' }
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/lsp_extensions.nvim'
+Plug 'nvim-lua/completion-nvim'
+Plug 'nvim-lua/lsp-status.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate rust toml go'}
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 
 call plug#end()
 
@@ -43,7 +51,26 @@ if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
 endif
 let base16colorspace=256
 syntax enable
+colorscheme base16-gruvbox-dark-hard
+set background=dark
+
 hi Normal ctermbg=NONE
+
+" LSP colors (base16-gruvbox-dark-hard)
+hi LspDiagnosticsDefaultError ctermfg=1 guifg=#fb4934
+hi LspDiagnosticsDefaultWarning ctermfg=16 guifg=#fe8019
+hi LspDiagnosticsDefaultInformation  ctermfg=7 guifg=#d5c4a1
+hi LspDiagnosticsDefaultHint ctermfg=8 guifg=#665c45
+hi LspDiagnosticsSignError ctermfg=1 guifg=#fb4934 guibg=#3c3836
+hi LspDiagnosticsSignWarning ctermfg=16 guifg=#fe8019 guibg=#3c3836
+hi LspDiagnosticsSignInformation  ctermfg=7 guifg=#d5c4a1 guibg=#3c3836
+hi LspDiagnosticsSignHint ctermfg=8 guifg=#665c45 guibg=#3c3836
+
+"LSP signs
+sign define LspDiagnosticsSignError text= texthl=LspDiagnosticsSignError linehl= numhl=
+sign define LspDiagnosticsSignWarning text= texthl=LspDiagnosticsSignWarning linehl= numhl=
+sign define LspDiagnosticsSignInformation text= texthl=LspDiagnosticsSignInformation linehl= numhl=
+sign define LspDiagnosticsSignHint text= texthl=LspDiagnosticsSignHint linehl= numhl=
 
 " Dont highlight long columns
 set synmaxcol=500
@@ -70,6 +97,9 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 " =============================================================================
 " # Editor settings
 " =============================================================================
+
+" Only spelunker as spell checker
+set nospell
 
 " Write swap after ms
 set updatetime=500
@@ -122,6 +152,9 @@ set softtabstop=8
 set tabstop=8
 set noexpandtab
 
+" Wrap text width
+set textwidth=100
+
 " Wrapping options
 set formatoptions=tc " wrap text and comments using textwidth
 set formatoptions+=r " continue comments when pressing ENTER in I mode
@@ -156,6 +189,9 @@ set shortmess+=c
 " completion handling
 set completeopt=menuone,noinsert,noselect
 
+" windows clipboard
+set clipboard=unnamedplus
+
 " =============================================================================
 " # Plugin settings
 " =============================================================================
@@ -163,25 +199,6 @@ set completeopt=menuone,noinsert,noselect
 let g:sneak#s_next = 1
 
 " Color scheme
-colorscheme base16-gruvbox-dark-hard
-set background=dark
-" Brighter comments
-call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
-
-" Lightline
-let g:lightline = {
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename',
-      \   'cocstatus': 'coc#status'
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:t') !=# '' ? @% : '[No Name]'
-endfunction
 
 " FZF
 if executable('rg')
@@ -195,7 +212,7 @@ command! -bang -nargs=? -complete=dir Files
 
 function! s:list_cmd()
   let base = fnamemodify(expand('%'), ':h:.:S')
-  return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
+  return base == '.' ? 'fdfind --type file --follow' : printf('fdfind --type file --follow | proximity-sort %s', shellescape(expand('%')))
 endfunction
 
 function! RipgrepFzf(query, fullscreen)
@@ -214,6 +231,93 @@ command! -bang -nargs=* Rg
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
+
+" LSP config
+" https://github.com/neovim/nvim-lspconfig#rust_analyzer
+lua <<EOF
+-- nvim_lsp object
+local lsp_status = require('lsp-status')
+-- Status bar config
+lsp_status.config({
+  indicator_errors = '',
+  indicator_warnings = '',
+  indicator_info = '',
+  indicator_hint = '',
+  indicator_ok = '',
+})
+lsp_status.register_progress()
+
+local nvim_lsp = require'lspconfig'
+
+local on_attach = function(client)
+    require'completion'.on_attach(client)
+    lsp_status.on_attach(client)
+end
+
+-- Enable rust_analyzer
+nvim_lsp.rust_analyzer.setup({
+    on_attach=on_attach,
+    capabilities = lsp_status.capabilities,
+    settings = {
+        ["rust-analyzer"] = {
+            checkOnSave = {
+	        command = 'clippy'
+            }
+        }
+    },
+    flags = {
+        debounce_text_changes = 150
+    }
+})
+
+-- Enable diagnostics
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = true,
+    signs = true,
+    update_in_insert = true,
+    underline = false,
+  }
+)
+EOF
+
+" Lightline
+let g:lightline = {
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'lspstatus', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'filename': 'LightlineFilename',
+      \   'lspstatus': 'LspStatus'
+      \ },
+      \ }
+function! LightlineFilename()
+  return expand('%:t') !=# '' ? @% : '[No Name]'
+endfunction
+
+" Statusline
+function! LspStatus() abort
+  if luaeval('#vim.lsp.buf_get_clients() > 0')
+    return luaeval("require('lsp-status').status()")
+  endif
+
+  return ''
+endfunction
+
+" Show diagnostic popup on cursor hold
+autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()
+
+" Enable type inlay hints
+autocmd CursorMoved,InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
+\ lua require'lsp_extensions'.inlay_hints{ 
+\   prefix = '', 
+\   highlight = "Comment", 
+\   enabled = {"TypeHint", "ChainingHint", "ParameterHint"}
+\ }
+
+" Auto-format *.rs (rust) files prior to saving them
+autocmd BufWritePre *.rs lua vim.lsp.buf.formatting_sync(nil, 1000)
 
 " Treesitter config
 lua <<EOF
@@ -234,73 +338,21 @@ map <leader>f :Files<CR>
 nmap <leader>; :Buffers<CR>
 noremap <leader>s :RG 
 
-" LSP configuration
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-" Remap keys for applying codeAction to the current buffer.
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
-
-" Remap <C-f> and <C-b> for scroll float windows/popups.
-nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-
-" Mappings for CoCList
-" Show all diagnostics.
-nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
-" Show commands.
-nnoremap <silent><nowait> <leader>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <leader>p  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <leader>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <leader>k  :<C-u>CocPrev<CR>
+" LSP navigation
+nnoremap <silent> gD         <cmd>lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> gd         <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> K          <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> gi         <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> <c-k>      <cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> gt         <cmd>lua vim.lsp.buf.type_definition()<CR>
+nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<CR>
+nnoremap <silent> <leader>a  <cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <silent> gr         <cmd>lua vim.lsp.buf.references()<CR>
+nnoremap <silent> <leader>d  <cmd>lua vim.lsp.diagnostic.set_loclist()<CR>
+nnoremap <silent> g0         <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nnoremap <silent> gW         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+nnoremap <silent> g[         <cmd>lua vim.lsp.diagnostic.goto_prev()<CR>
+nnoremap <silent> g]         <cmd>lua vim.lsp.diagnostic.goto_next()<CR>
 
 " Quick qwx
 nmap <leader>w :w<CR>
