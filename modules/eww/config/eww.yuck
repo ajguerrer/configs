@@ -1,0 +1,46 @@
+(defwidget bar []
+  (box :class "sidestuff" :halign "start" :orientation "h" :space-evenly false
+    (box :class "time" 
+         :space-evenly false 
+      (label :text { formattime(EWW_TIME, "%F %l:%M") }))
+    (metric :label ""
+            :value {EWW_CPU.avg}
+            :onchange "")
+    (metric :label "󰍛"
+            :value {EWW_RAM.used_mem_perc}
+            :onchange "")
+    (metric :label "󰋊"
+            :value {EWW_DISK["/"].used_perc}
+            :onchange "")
+    (net :label ""
+         :value {EWW_NET["enp8s0"].NET_DOWN / (1024 * 1024)})))
+
+(defwidget metric [label value onchange]
+  (box :orientation "h"
+       :class "metric"
+       :space-evenly false
+    (box :class "label" label)
+    (scale :min 0
+           :max 101
+           :active {onchange != ""}
+           :value value
+           :onchange onchange)))
+
+(defwidget net [label value]
+  (box :orientation "h"
+       :space-evenly false
+    (box :class "net" label)
+    (label :class "netval" 
+           :xalign "1"
+           :text "${round(value, 2)} MB")))
+
+(defwindow bar
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "0px"
+                      :height "24px"
+                      :anchor "bottom center")
+  :stacking "fg"
+  :exclusive false
+  (bar))

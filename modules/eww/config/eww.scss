@@ -1,0 +1,45 @@
+* {
+  all: unset; //Unsets everything so you can style everything from scratch
+}
+
+//Global Styles
+.bar {
+  background-color: #303136;
+  color: #A9AAB2;
+  font-family: Inter, 'Iosevka Nerd Font';
+  font-size: 14;
+  border-radius: 4px;
+}
+
+// Styles on classes (see eww.yuck for more information)
+
+.metric scale trough highlight {
+  all: unset;
+  background-color: #BE9DAD;
+  color: #000000;
+  border-radius: 10px;
+}
+
+.metric scale trough {
+  all: unset;
+  background-color: #565861;
+  border-radius: 50px;
+  min-height: 4px;
+  min-width: 60px;
+  margin-left: 10px;
+  margin-right: 16px;
+}
+
+.time {
+  margin-left: 10px;
+  margin-right: 14px;
+}
+
+.net {
+  margin-right:8px;
+}
+
+.netval {
+  min-width: 74px;
+  margin-right: 10px;
+}
