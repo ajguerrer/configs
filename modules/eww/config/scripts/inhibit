@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+
+INHIBIT_DIR="/home/andrew/.cache"
+INHIBIT_FILE="inhibit"
+INHIBIT_PATH="$INHIBIT_DIR/$INHIBIT_FILE"
+ICON_DIR="/etc/profiles/per-user/andrew/share/icons/Tela-pink-dark/symbolic/status"
+CAFFEINE_EMPTY="$ICON_DIR/caffeine-cup-empty-symbolic.svg"
+CAFFEINE_FULL="$ICON_DIR/caffeine-cup-full-symbolic.svg"
+
+get_time_ms() {
+  date -u +%s%3N
+}
+
+status() {
+  [ -f "$INHIBIT_PATH" ] && echo "on" || echo "off"
+}
+
+icon() {
+  [ "$(status)" = "on" ] && echo "$CAFFEINE_EMPTY" || echo "$CAFFEINE_FULL"
+}
+
+toggle() {
+  if [ "$(status)" = "on" ]; then
+    rm "$INHIBIT_PATH"
+    notify-send --urgency=normal -i "$CAFFEINE_EMPTY" "Idle Inhibit: OFF" "Enabled blank screen/suspend on idle"
+  else
+    touch "$INHIBIT_PATH"
+    notify-send --urgency=normal -i  "$CAFFEINE_FULL" "Idle Inhibit: ON" "Disabled blank screen/suspend on idle"
+  fi
+}
+
+if [ "$1" = "toggle" ]; then
+  toggle
+else
+  last_time=$(get_time_ms)
+  icon
+
+  inotifywait -mq -e create -e delete --format '%e' --include "$INHIBIT_FILE" "$INHIBIT_DIR" | while read -r _; do
+    current_time=$(get_time_ms)
+    delta=$((current_time - last_time))
+    # 50ms debounce
+    if [[ $delta -gt 50 ]]; then
+      icon
+      # reset debounce timer
+      last_time=$(get_time_ms)
+    fi
+  done
+fi

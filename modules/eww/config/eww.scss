@@ -15,14 +15,14 @@
 
 .metric scale trough highlight {
   all: unset;
-  background-color: #BE9DAD;
+  background-color: #BF9BAE;
   color: #000000;
   border-radius: 10px;
 }
 
 .metric scale trough {
   all: unset;
-  background-color: #565861;
+  background-color: #6C6C73;
   border-radius: 50px;
   min-height: 4px;
   min-width: 60px;
@@ -41,5 +41,9 @@
 
 .netval {
   min-width: 74px;
+  margin-right: 8px;
+}
+
+.inhibit-box {
   margin-right: 10px;
 }

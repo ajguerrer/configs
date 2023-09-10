@@ -27,13 +27,13 @@ lib.checkListOfEnum "${pname}: grub screens" [ "1080p" "2k" "4k" ] grubScreens
 
 stdenvNoCC.mkDerivation rec {
   inherit pname;
-  version = "c9971c60b57a03a72f8fa9cf397a66964574849a";
+  version = "d93789c0d4671ad5184b068f70559007be26bd52";
 
   src = fetchFromGitHub {
     owner = "ajguerrer";
     repo = pname;
     rev = version;
-    sha256 = "sha256-+tCLyJ56JdbTvWk2IpnBotRg/91bDdyKNVmldmDCaMM=";
+    sha256 = "sha256-O3p486YGz86wsMUO+Pnv1j31TeBbhIcaG9JKRg2sTRs=";
   };
 
   nativeBuildInputs = [
@@ -81,7 +81,7 @@ stdenvNoCC.mkDerivation rec {
       )
     ''}
 
-    jdupes --quiet --link-soft --recurse $out/share
+    jdupes --quiet --link-soft --recurse $out/share/themes
 
     runHook postInstall
   '';

@@ -1,4 +1,4 @@
-{config, ...}: let
+{config, pkgs, ...}: let
   browser = ["google-chrome.desktop"];
   # XDG MIME types
   associations = {
@@ -35,5 +35,14 @@ in {
         XDG_SCREENSHOTS_DIR = "${config.xdg.userDirs.pictures}/Screenshots";
       };
     };
+  };
+
+  home.packages = with pkgs; [
+    xdg-utils
+  ];
+
+  home.sessionVariables = {
+    GTK_USE_PORTAL = "1";
+    NIXOS_XDG_OPEN_USE_PORTAL = "1";
   };
 }

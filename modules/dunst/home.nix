@@ -35,19 +35,19 @@
       fullscreen_delay_everything = {fullscreen = "delay";};
 
       urgency_critical = {
-        background = "#43454C";
+        background = "#48484D";
         foreground = "#A9AAB2";
-        frame_color = "#BEAD9D";
+        frame_color = "#BFAE9D";
       };
       urgency_low = {
-        background = "#43454C";
+        background = "#48484D";
         foreground = "#A9AAB2";
-        frame_color = "#9DB3BE";
+        frame_color = "#9DAEBF";
       };
       urgency_normal = {
-        background = "#43454C";
+        background = "#48484D";
         foreground = "#A9AAB2";
-        frame_color = "#BE9DAD";
+        frame_color = "#BF9BAE";
       };
     };
   };

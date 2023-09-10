@@ -1,4 +1,4 @@
-(defwidget bar []
+ (defwidget bar []
   (box :class "sidestuff" :halign "start" :orientation "h" :space-evenly false
     (box :class "time" 
          :space-evenly false 
@@ -13,7 +13,8 @@
             :value {EWW_DISK["/"].used_perc}
             :onchange "")
     (net :label ""
-         :value {EWW_NET["enp8s0"].NET_DOWN / (1024 * 1024)})))
+         :value {EWW_NET["enp8s0"].NET_DOWN / (1024 * 1024)})
+    (inhibit_toggle :path inhibit)))
 
 (defwidget metric [label value onchange]
   (box :orientation "h"
@@ -33,6 +34,16 @@
     (label :class "netval" 
            :xalign "1"
            :text "${round(value, 2)} MB")))
+
+(defwidget inhibit_toggle [path]
+  (box :class "inhibit-box"
+       :orientation "h"
+       :space-evenly false
+    (overlay  
+      (image :path path :image-width "14px" :image-height "14px")
+      (button :onclick "scripts/inhibit toggle"))))
+
+(deflisten inhibit "scripts/inhibit")
 
 (defwindow bar
   :monitor 0

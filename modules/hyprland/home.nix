@@ -9,6 +9,8 @@
   };
 
   home.packages = with pkgs; [
+    gnome.gnome-keyring
+    gnome.seahorse
     grim
     slurp
     hyprpicker
@@ -17,7 +19,10 @@
     wlr-randr
   ];
 
-  services.gnome-keyring.enable = true;
+  services.gnome-keyring = {
+    enable = true;
+    components = ["pkcs11" "secrets" "ssh"];
+  };
 
   systemd.user.targets.hyperland-session.Unit.Wants = [ "xdg-desktop-autostart.target" ];
 
@@ -26,75 +31,78 @@
 
   # make stuff work on wayland
   home.sessionVariables = {
+    GDK_BACKEND = "wayland";
     QT_QPA_PLATFORM = "wayland";
     SDL_VIDEODRIVER = "wayland";
+
+    XDG_CURRENT_DESKTOP = "Hyprland";
     XDG_SESSION_TYPE = "wayland";
+    XDG_SESSION_DESKTOP = "Hyprland";
+
+    NIXOS_OZONE_WL = "1";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
+    CLUTTER_BACKEND = "wayland";
+    WLR_RENDERER = "vulkan";
+    
+    POLKIT_AUTH_AGENT = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
   };
 
   wayland.windowManager.hyprland = {
     enable = true;
     systemdIntegration = true;
-    nvidiaPatches = false;
     extraConfig = ''
     $mod = SUPER
 
     exec-once = eww open bar
 
-    # use this instead of hidpi patches
-    xwayland {
-      force_zero_scaling = true
-    }
+    # Some default env vars.
+    env = XCURSOR_SIZE,32
 
+    # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
     input {
       kb_layout = us
+      kb_variant =
+      kb_model =
+      kb_options =
+      kb_rules =
 
-      # focus change on cursor move
       follow_mouse = 1
-      accel_profile = flat
+
       touchpad {
-        scroll_factor = 0.3
+        natural_scroll = false
       }
+
+      sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
     }
 
     general {
       gaps_in = 0
       gaps_out = 0
       border_size = 2
-      col.active_border = rgb(BE9DAD)
-      col.inactive_border = rgb(43454C)
+      col.active_border = rgb(BF9BAE)
+      col.inactive_border = rgb(48484D)
 
       layout = dwindle # master|dwindle 
     }
 
-    dwindle {
-      # keep floating dimentions while tiling
-      pseudotile = true
-      preserve_split = true
-    }
-
-    master {
-      new_is_master = true
-      special_scale_factor = 0.8
-      new_is_master = true
-      no_gaps_when_only = false
-    }
-
     decoration {
       rounding = 4
-      blur = true
-      blur_size = 3
-      blur_passes = 3
-      blur_new_optimizations = true
+
+      blur {
+        enabled = true
+        size = 3
+        passes = 1
+      }
 
       drop_shadow = true
-      shadow_ignore_window = true
-      shadow_offset = 0 5
-      shadow_range = 50
+      shadow_range = 4
       shadow_render_power = 3
       col.shadow = rgba(00000099)
     }
 
     animations {
+      # See https://wiki.hyprland.org/Configuring/Animations/ for more
+
       enabled = true
       animation = border, 1, 2, default
       animation = fade, 1, 4, default
@@ -102,25 +110,25 @@
       animation = workspaces, 1, 2, default, slide
     }
 
+    dwindle {
+      # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
+      pseudotile = true # master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
+      preserve_split = true # you probably want this
+    }
+
+    master {
+      # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
+      new_is_master = true
+    }
+    
     gestures {
-      workspace_swipe = true
-      workspace_swipe_fingers = 4
-      workspace_swipe_distance = 250
-      workspace_swipe_invert = true
-      workspace_swipe_min_speed_to_force = 15
-      workspace_swipe_cancel_ratio = 0.5
-      workspace_swipe_create_new = false
+      # See https://wiki.hyprland.org/Configuring/Variables/ for more
+      workspace_swipe = false
     }
 
     misc {
       disable_autoreload = true
       disable_hyprland_logo = true
-      always_follow_on_dnd = true
-      layers_hog_keyboard_focus = true
-      animate_manual_resizes = false
-      enable_swallow = true
-      swallow_regex =
-      focus_on_activate = true
     }
 
     # only allow shadows for floating windows

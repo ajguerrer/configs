@@ -8,6 +8,7 @@
     ../../modules/fonts
     ../../modules/gc
     ../../modules/hyprland
+    ../../modules/xdg
   ];
 
   boot = {
@@ -33,13 +34,15 @@
     shell = pkgs.bash;
     extraGroups = [ "networkmanager" "wheel" "docker" "wireshark" "libvirtd" "audio" "video" ];
     packages = with pkgs; [
-      google-chrome
-      gnome.nautilus
+      file
       gnome.gnome-font-viewer
+      gnome.nautilus
+      google-chrome
       neovim
-      wireshark
-      tshark
+    
       spotify
+      tshark
+      wireshark
     ];
   };
 
@@ -92,8 +95,6 @@
       HandlePowerKey=suspend
     '';
   };
-
-  security.polkit.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

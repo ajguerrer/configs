@@ -5,11 +5,6 @@
     light.enable = true;
   };
 
-  xdg.portal = {
-    enable = true;
-    wlr.enable = true;
-  };
-
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";
@@ -26,10 +21,13 @@
     };
   };
   security.polkit.enable = true;
-  
+
   environment.systemPackages = with pkgs; [
     polkit_gnome
   ];
   
-  services.dbus.packages = [ pkgs.gcr ];
+  services = {
+    xserver.gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
+    dbus.packages = [ pkgs.gcr ];
+  };
 }
