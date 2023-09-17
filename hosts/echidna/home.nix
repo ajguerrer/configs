@@ -8,7 +8,6 @@
     ../../modules/gpg/home.nix
     ../../modules/gtk/home.nix
     ../../modules/hyprland/home.nix
-    ../../modules/rust/home.nix
     ../../modules/starship/home.nix
     ../../modules/swaybg/home.nix
     ../../modules/swayidle/home.nix

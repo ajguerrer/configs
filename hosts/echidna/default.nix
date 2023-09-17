@@ -8,6 +8,7 @@
     ../../modules/fonts
     ../../modules/gc
     ../../modules/hyprland
+    ../../modules/rust
     ../../modules/xdg
   ];
 
@@ -29,17 +30,19 @@
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.groups.wireshark = {};
+  programs.wireshark.enable = true;
   users.users.${user} = {
     isNormalUser = true;
     shell = pkgs.bash;
     extraGroups = [ "networkmanager" "wheel" "docker" "wireshark" "libvirtd" "audio" "video" ];
     packages = with pkgs; [
-      file
+      bottom
       gnome.gnome-font-viewer
       gnome.nautilus
       google-chrome
       neovim
-    
+      oha
       spotify
       tshark
       wireshark
