@@ -2,11 +2,11 @@
 
 ## Update
 
-`sudo nix-channel --update && sudo nixos-rebuild switch --flake .#echidna`
+`nix flake update && sudo nixos-rebuild switch --flake .#echidna`
 
 or if changing bootloader 
 
-`sudo nix-channel --update && sudo nixos-rebuild switch --install-bootloader --flake .#echidna`
+`nix flake update && sudo nixos-rebuild switch --install-bootloader --flake .#echidna`
 
 ## Clean
 

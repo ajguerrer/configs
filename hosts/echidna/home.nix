@@ -20,6 +20,7 @@
     packages = with pkgs; [ 
       gh
       ripgrep 
+      alacritty
     ];
     sessionVariables = {
       # BROWSER = "google-chrome-stable";

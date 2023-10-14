@@ -31,7 +31,17 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.groups.wireshark = {};
-  programs.wireshark.enable = true;
+  programs = {
+    wireshark.enable = true;
+    # for vscode-server
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        stdenv.cc.cc
+      ];
+    };
+  };
+
   users.users.${user} = {
     isNormalUser = true;
     shell = pkgs.bash;
@@ -80,6 +90,8 @@
 
     # Enable automatic login for the user.
     getty.autologinUser = "${user}";
+
+    openssh.enable = true;
     
     gvfs.enable = true;
 

@@ -17,10 +17,9 @@
     variables = {
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
       LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
-      BINDGEN_EXTRA_CLANG_ARGS = ''
-      -I"${pkgs.linuxHeaders}/include"
-      -I"${pkgs.libclang.lib}/lib/clang/${pkgs.libclang.version}/include"
-      '';
+      BINDGEN_EXTRA_CLANG_ARGS = "-I${pkgs.glibc.dev}/include" +
+        " -I${pkgs.libclang.lib}/lib/clang/${pkgs.libclang.version}/include" +
+        " -I${pkgs.linuxHeaders}/include";
     };
   };
 }

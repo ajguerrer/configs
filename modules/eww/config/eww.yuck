@@ -40,7 +40,7 @@
        :orientation "h"
        :space-evenly false
     (overlay  
-      (image :path path :image-width "14px" :image-height "14px")
+      (image :path path :image-width "14" :image-height "14")
       (button :onclick "scripts/inhibit toggle"))))
 
 (deflisten inhibit "scripts/inhibit")
